@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,9 +16,11 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -46,6 +50,8 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
     private MyPDFPagerAdapter adapter;
 
     private LinearLayout bottom;
+
+    private RadioGroup rg;
 
     private RadioButton button1;
 
@@ -77,6 +83,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                 Log.i("wqer", str);
 
                 try {
+
                     JSONObject jSONObject = new JSONObject(str);
                     int i = jSONObject.getInt("status");
                     log(jSONObject.toString());
@@ -94,11 +101,11 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                         if (Main2Activity.this.finalId != j) {
                             if (!flag) {
                                 welcome_root.setVisibility(View.VISIBLE);
-                                flag = true;   //access$502
+                                flag = true;
                                 log("!flag");
                                 pdf_back.setVisibility(View.GONE);
                             } else {
-                                Thread.sleep(3000L);
+                                Thread.sleep(3000L);   //等3s加载投票界面
                                 aBoolean = true;
                                 if (i == 0) {
                                     submit.setEnabled(false);
@@ -119,7 +126,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                                 }
 
                                 finalId = j;
-                                fileType = jSONObject.getInt("fileType");
+                                fileType = jSONObject.getInt("fileType");  //0：pdf，1：exccel
 
                                 if (flag) {
                                     welcome_root.setVisibility(View.GONE);
@@ -182,6 +189,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
             if (param1Message.what == 1) {
                 String str = (String)param1Message.obj;
                 int i = param1Message.arg1;
+                bottom.setVisibility(View.VISIBLE);
                 log("wqer" + str);
                 try {
                     JSONObject jSONObject = new JSONObject(str);
@@ -214,17 +222,16 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
 
                     str = jSONObject.getString("name");//String name = jSONObject.getString("name");
 
-                    //if (jSONObject.getInt("number") != 0)
-                        number = jSONObject.getInt("number");
-                    log("cccccccccccccccccccccccc"+jSONObject.getInt("number"));
-                    /*Main2Activity.access$1902(Main2Activity.this, new ArrayList());
+                    number = jSONObject.getInt("number");
+                    //log("cccccccccccccccccccccccc"+jSONObject.getInt("number"));
 
-                    Main2Activity.access$2002(Main2Activity.this, new ArrayList());*/
                     list1 = new ArrayList();
                     listcheck = new ArrayList();
                     JSONArray jSONArray = new JSONArray(jSONObject.get("list").toString());
                     log(jSONArray.toString());
-
+                    if (jSONArray.length() < 10) {
+                        bottom.setVisibility(View.INVISIBLE);
+                    }
                     for (int b = 0;b < jSONArray.length(); b++) {
 
                             JSONArray jSONArray1 = new JSONArray(jSONArray.get(b).toString());
@@ -279,16 +286,37 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
     @SuppressLint({"HandlerLeak"})
     private Handler handler4 = new Handler() {
         public void handleMessage(Message param1Message) {
-            /*String str = (String)param1Message.obj;
-            log(str + "bbbbb");
+            String str = (String)param1Message.obj;
             try {
                 JSONObject jSONObject = new JSONObject(str);
                 log(jSONObject.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
-            }*/
+            }
             if (param1Message.what == 1){
-                toast("提交成功！");
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(Main2Activity.this);
+                builder.setTitle("温馨提示");
+                builder.setMessage("您已经提交成功");
+                builder.setCancelable(false);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        log("ok");
+                    }
+                });
+                //builder.show();
+                final AlertDialog dlg = builder.create();
+                dlg.show();
+                final Timer t = new Timer();
+                t.schedule(new TimerTask() {
+                    public void run() {
+                        dlg.dismiss();   //提交成功窗口设置五秒消失
+                        t.cancel();
+                    }
+                }, 5000);
+
+                //toast("提交成功！");
                 suggess.setText("");
             }
             super.handleMessage(param1Message);
@@ -380,6 +408,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
 
         pdf_back = (Button)findViewById(R.id.pdf_back);
         submitexcel = (Button)findViewById(R.id.submitexcel);
+        rg = (RadioGroup) findViewById(R.id.rg);
         button1 = (RadioButton)findViewById(R.id.button1);
         button2 = (RadioButton)findViewById(R.id.button2);
         button3 = (RadioButton)findViewById(R.id.button3);
@@ -420,17 +449,19 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
 
     }
 
-    private void postRequest2(int paramInt1, int paramInt2, String paramString, int paramInt3) {
+    private void postRequest2(final int paramInt1, final int paramInt2, String paramString, int paramInt3) {
         JSONArray jSONArray = null;
         if (this.fileType == 1) {
             jSONArray = new JSONArray();
             int count = 0;
-            for (int i = 0;i < this.listcheck.size(); i++) {
+            ArrayList<String> list = new ArrayList<>(listcheck.size());
+            for (int i = 0;i < listcheck.size(); i++) {
                     JSONObject jSONObject = new JSONObject();
                     try {
                         switch (listcheck.get(i))  {
                             case R.id.r1:
                                 jSONObject.put((String)((List)this.list1.get(i)).get(0), 1);
+                                list.add(list1.get(i).get(0));
                                 count ++;
                                 break;
                             case R.id.r2:
@@ -446,7 +477,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                         if (number != 0 && count > number) {
                             AlertDialog.Builder dialog = new AlertDialog.Builder(Main2Activity.this);
                             dialog.setTitle("友情提示");
-                            dialog.setMessage("您只能投 "+number+" 票同意");
+                            dialog.setMessage("您只能选择 "+number+" 名候选对象");
                             dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -469,29 +500,67 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                     }
             }
             log(jSONArray.toString());
-            requestBody = new FormBody.Builder()
-                    .add("aid", "" + paramInt1).add("uid", "" + paramInt2).add("result", jSONArray.toString()).build();
-            final Request request = new Request.Builder()
-                    .url("http://"+ PublicUtil.ip+"/conference/index/index/pollExcel")
-                    .post(requestBody)
-                    .build();
-            new Thread(new Runnable() {
+
+            final JSONArray finalJSONArray = jSONArray;
+            AlertDialog.Builder dialog2 = new AlertDialog.Builder(Main2Activity.this);
+            dialog2.setTitle("友情提示");
+//            dialog2.setMessage("您已经投了 "+count+" 票同意,确定提交么");
+            StringBuilder str = new StringBuilder();
+            for (int i = 0; i < list.size(); i++) {
+                if (i == list.size()-1) str.append(list.get(i)+"号 ");
+                else str.append(list.get(i) + ",");
+            }
+            if (str.length()==0 || str == null) {
+                dialog2.setMessage("您没有选择候选对象,确定提交么？");
+            } else if (count == listcheck.size()) {
+                dialog2.setMessage("您全部选择了 同意 ,确定提交么？");
+            } else {
+                dialog2.setMessage("您已经投了 "+str+" 同意票,确定提交么？");
+            }
+            dialog2.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
-                public void run() {
-                    Response response = null;
-                    try {
-                        response = client.newCall(request).execute();
-                        log(response.toString());
-                        if (response.isSuccessful()) {
-                            handler4.obtainMessage(1, response.body().string()).sendToTarget();
-                        } else {
-                            throw new IOException("Unexception code:" + response);
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    requestBody = new FormBody.Builder()
+                            .add("aid", "" + paramInt1).add("uid", "" + paramInt2).add("result", finalJSONArray.toString()).build();
+                    final Request request = new Request.Builder()
+                            .url("http://"+ PublicUtil.ip+"/conference/index/index/pollExcel")
+                            .post(requestBody)
+                            .build();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Response response = null;
+                            try {
+                                response = client.newCall(request).execute();
+                                log(response.toString());
+                                if (response.isSuccessful()) {
+                                    handler4.obtainMessage(1, response.body().string()).sendToTarget();
+                                } else {
+                                    throw new IOException("Unexception code:" + response);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    }).start();
                 }
-            }).start();
+            });
+            dialog2.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    submit.setEnabled(true);
+                    submitexcel.setEnabled(true);
+                    suggess.setEnabled(true);
+                    submit.setAlpha(1.0F);
+                    submitexcel.setAlpha(1.0F);
+                    submit.setBackgroundResource(R.drawable.radius);
+                    submitexcel.setBackgroundResource(R.drawable.radius);
+
+                    return;
+                }
+            });
+            dialog2.show();
+
 
 
         }
@@ -565,7 +634,6 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                     if (response.isSuccessful()) {
                         handler3.obtainMessage(1, aid, 0, response.body().string()).sendToTarget();
                     } else {
-
                         throw new IOException("Unexception code:" + response);
                     }
                 } catch (IOException e) {
@@ -607,7 +675,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                 submit.setAlpha(0.5F);
                 submitexcel.setAlpha(0.5F);
                 aBoolean = false;
-                postRequest2(this.finalId, this.uid, str, b);
+                postRequest2(this.finalId, this.uid, str, b);  //b表示pdf的同意不同意
                 return;
             case R.id.submitexcel:
                 break;
@@ -645,24 +713,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
             this.welcome_text.setText(this.name);
             this.welcome_text0.setText(str);
         }
-        /*str1 = "";
-        if (str2 != null) {
-            String str = str1;
-            try {
-                JSONObject jSONObject = new JSONObject(str2);
-                str = str1;
-                this.name = jSONObject.getString("name");
-                str = str1;
-                str1 = jSONObject.getString("committee");
-                str = str1;
-                log(str1);
-                str = str1;
-            } catch (JSONException str1) {
-                str1.printStackTrace();
-            }
-            this.welcome_text.setText(this.name);
-            this.welcome_text0.setText(str);
-        }*/
+
         (new Timer()).scheduleAtFixedRate(new TimerTask() {
             public void run() { Main2Activity.this.postRequest1(); }
         },  1000L, 5000L);
@@ -703,6 +754,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
         this.remotePDFViewPager = new MyRemotePDFViewPager(this, this.mUrl, this);
         this.remotePDFViewPager.setId(R.id.pdfViewPager);
     }
+
 
     public void toast(String paramString) { Toast.makeText(this, paramString, Toast.LENGTH_LONG).show(); }
 }

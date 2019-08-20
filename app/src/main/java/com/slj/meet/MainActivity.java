@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity{
                         String name = jsonObject.getString("name");
                         nameList.put(i, new People(id,name));
                     }
-                    setbtn();
+                    setbtn();  //设置显示参会人员姓名
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

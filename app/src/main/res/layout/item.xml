@@ -86,7 +86,6 @@
             android:checked="true"
             android:drawableTop="@drawable/radio1"
             android:focusable="false"
-
             android:text="同意"
             android:textColor="@android:color/black"
             android:textSize="12.0sp" />
@@ -98,7 +97,6 @@
             android:layout_margin="10.0dip"
             android:button="@null"
             android:drawableTop="@drawable/radio2"
-
             android:focusable="false"
             android:text="不同意"
             android:textColor="@android:color/black"
@@ -110,7 +108,6 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableTop="@drawable/radio3"
-
             android:focusable="false"
             android:text="弃权"
             android:textColor="@android:color/black"

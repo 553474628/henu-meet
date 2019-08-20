@@ -95,7 +95,7 @@ public class ExcelAdapter extends BaseAdapter {
         viewHolder.rg.check(checkes.get(position));
         viewHolder.rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
+            public void onCheckedChanged(RadioGroup group, int checkedId) {  //选择r1,r2,r3
                 checkes.set((Integer) group.getTag(), checkedId);
             }
         });
