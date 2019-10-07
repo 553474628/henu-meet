@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import es.voghdev.pdfviewpager.library.RemotePDFViewPager;
+import es.voghdev.pdfviewpager.library.adapter.PDFPagerAdapter;
 import es.voghdev.pdfviewpager.library.remote.DownloadFile;
 import es.voghdev.pdfviewpager.library.util.FileUtil;
 import okhttp3.FormBody;
@@ -47,7 +49,7 @@ import okhttp3.Response;
 public class Main2Activity extends AppCompatActivity implements DownloadFile.Listener, View.OnClickListener {
     private boolean aBoolean = true;
 
-    private MyPDFPagerAdapter adapter;
+    private PDFPagerAdapter adapter;
 
     private LinearLayout bottom;
 
@@ -341,7 +343,7 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
 
     private RelativeLayout pdf_root;
 
-    private MyRemotePDFViewPager remotePDFViewPager;
+    private RemotePDFViewPager remotePDFViewPager;
 
     private RequestBody requestBody = null;
 
@@ -562,7 +564,6 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
             dialog2.show();
 
 
-
         }
         if (this.fileType == 0) {
             requestBody = new FormBody.Builder()
@@ -726,33 +727,33 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
     }
 
     public void onPdfBack(View paramView) {
-        this.pdf_back.setVisibility(View.GONE);
-        this.bottom.setVisibility(View.VISIBLE);
-        this.pdf_root.setVisibility(View.GONE);
-        this.excel.setVisibility(View.VISIBLE);
+        pdf_back.setVisibility(View.GONE);
+        bottom.setVisibility(View.VISIBLE);
+        pdf_root.setVisibility(View.GONE);
+        excel.setVisibility(View.VISIBLE);
     }
 
     public void onProgressUpdate(int paramInt1, int paramInt2) {}
 
     public void onSuccess(String paramString1, String paramString2) {
-        this.pb_bar.setVisibility(View.GONE);
-        this.adapter = new MyPDFPagerAdapter(this, FileUtil.extractFileNameFromURL(paramString1));
-        this.remotePDFViewPager.setAdapter(this.adapter);
+        pb_bar.setVisibility(View.GONE);
+        adapter = new PDFPagerAdapter(this, FileUtil.extractFileNameFromURL(paramString1));
+        remotePDFViewPager.setAdapter(this.adapter);
         updateLayout();
     }
 
     protected void setDownloadListener(boolean paramBoolean) {
         if (paramBoolean) {
-            this.bottom.setVisibility(View.GONE);
-            this.pdf_back.setVisibility(View.VISIBLE);
+            bottom.setVisibility(View.GONE);
+            pdf_back.setVisibility(View.VISIBLE);
         } else {
-            this.bottom.setVisibility(View.VISIBLE);
-            this.pdf_back.setVisibility(View.GONE);
+            bottom.setVisibility(View.VISIBLE);
+            pdf_back.setVisibility(View.GONE);
         }
-        this.pb_bar.setVisibility(View.VISIBLE);
+        pb_bar.setVisibility(View.VISIBLE);
         log(this.mUrl);
-        this.remotePDFViewPager = new MyRemotePDFViewPager(this, this.mUrl, this);
-        this.remotePDFViewPager.setId(R.id.pdfViewPager);
+        remotePDFViewPager = new RemotePDFViewPager(this, this.mUrl, this);
+        remotePDFViewPager.setId(R.id.pdfViewPager);
     }
 
 
