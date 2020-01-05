@@ -219,11 +219,8 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                 try {
                     JSONObject jSONObject = new JSONObject(str);
                     int j = jSONObject.getInt("aid");
-
                     col_num = jSONObject.getInt("col_num") + 1;
-
                     str = jSONObject.getString("name");//String name = jSONObject.getString("name");
-
                     number = jSONObject.getInt("number");
                     //log("cccccccccccccccccccccccc"+jSONObject.getInt("number"));
 
@@ -235,7 +232,6 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                         bottom.setVisibility(View.INVISIBLE);
                     }
                     for (int b = 0;b < jSONArray.length(); b++) {
-
                             JSONArray jSONArray1 = new JSONArray(jSONArray.get(b).toString());
                             if (b == 0) {
                                 for (byte b1 = 0; b1 < jSONArray1.length(); b1++)
@@ -251,32 +247,29 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                                 } else {
                                     listcheck.add(Integer.valueOf(R.id.r2));
                                 }
-
                             }
                         }
-                            if (j == i) {
-                                excel_name.setText(str);
+                        if (j == i) {
+                            excel_name.setText(str);
 
-                                listView.setAdapter(new ExcelAdapter(Main2Activity.this, list1, listcheck));
-                                log((list1.get(0)).size() + "abc");
-                                if ((list1.get(0)).size() > 9) {
-                                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        public void onItemClick(AdapterView<?> param2AdapterView, View param2View, int param2Int, long param2Long) {
-                                            mUrl = "http://" + PublicUtil.ip + "/conference/upload/pdf/" + (String)((List)list1.get(param2Int)).get(0) + ".pdf";
-                                            pdf_root.setVisibility(View.VISIBLE);
-                                            excel.setVisibility(View.GONE);
-                                            setDownloadListener(true);
-                                        }
-                                    });
-                                } else {
-                                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        public void onItemClick(AdapterView<?> param2AdapterView, View param2View, int param2Int, long param2Long) {}
-                                    });
-                                }
+                            listView.setAdapter(new ExcelAdapter(Main2Activity.this, list1, listcheck));
+                            log((list1.get(0)).size() + "abc");
+                            if ((list1.get(0)).size() > 9) {
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    public void onItemClick(AdapterView<?> param2AdapterView, View param2View, int param2Int, long param2Long) {
+                                        mUrl = "http://" + PublicUtil.ip + "/conference/upload/pdf/" + (String)((List)list1.get(param2Int)).get(0) + ".pdf";
+                                        pdf_root.setVisibility(View.VISIBLE);
+                                        excel.setVisibility(View.GONE);
+                                        setDownloadListener(true);
+                                    }
+                                });
+                            } else {
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    public void onItemClick(AdapterView<?> param2AdapterView, View param2View, int param2Int, long param2Long) {}
+                                });
                             }
-                            super.handleMessage(param1Message);
-
-
+                        }
+                        super.handleMessage(param1Message);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -475,7 +468,6 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                             default:
                                 break;
                         }
-
                         if (number != 0 && count > number) {
                             AlertDialog.Builder dialog = new AlertDialog.Builder(Main2Activity.this);
                             dialog.setTitle("友情提示");
@@ -562,8 +554,6 @@ public class Main2Activity extends AppCompatActivity implements DownloadFile.Lis
                 }
             });
             dialog2.show();
-
-
         }
         if (this.fileType == 0) {
             requestBody = new FormBody.Builder()

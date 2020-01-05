@@ -31,7 +31,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-
 public class MainActivity extends AppCompatActivity{
     private List<Button> btnList;
     private GridLayout gridLayout;
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity{
                     String name= (String) buttoandroid.getText();
                     int id=0;
                     for (int i=0;i<nameList.size();i++){
-                        if (name.equals(nameList.get(i).name)){   //(MainActivity.People)this.this$0
+                        if (name.equals(nameList.get(i).name)){
                             id=nameList.get(i).id;
                         }
                     }

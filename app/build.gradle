@@ -30,6 +30,4 @@ dependencies {
     implementation 'es.voghdev.pdfviewpager:library:1.0.3'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-
 }
